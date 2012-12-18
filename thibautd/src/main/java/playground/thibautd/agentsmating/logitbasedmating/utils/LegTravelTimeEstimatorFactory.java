@@ -1,10 +1,10 @@
 /* *********************************************************************** *
  * project: org.matsim.*
- * SimpleLegTravelTimeEstimatorFactory.java
+ * LegTravelTimeEstimatorFactory.java
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2011 by the members listed in the COPYING,        *
+ * copyright       : (C) 2008 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -17,52 +17,56 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
+
 package playground.thibautd.agentsmating.logitbasedmating.utils;
 
 import org.matsim.api.core.v01.network.Network;
 import org.matsim.api.core.v01.population.Plan;
 import org.matsim.core.config.groups.PlanomatConfigGroup;
 import org.matsim.core.router.old.PlanRouterAdapter;
-import org.matsim.core.router.old.PlansCalcRoute;
 import org.matsim.core.router.util.TravelTime;
 import org.matsim.core.trafficmonitoring.DepartureDelayAverageCalculator;
 
-/**
- * Creates travel tim estimators.
- * This is mainly a wrapper around the default factory, with all non-plan
- * dependant parameters passed in the constructor rather than the create method.
- * @author thibautd
- */
-public class SimpleLegTravelTimeEstimatorFactory {
-	private final PlanomatConfigGroup.SimLegInterpretation simLegInterpretation;
-	private final PlanomatConfigGroup.RoutingCapability routingCapability;
-	private final PlanRouterAdapter routingAlgorithm;
-	private final Network network;
+public class LegTravelTimeEstimatorFactory {
 
-	private final LegTravelTimeEstimatorFactory factory;
+	private final TravelTime travelTime;
+	private final DepartureDelayAverageCalculator tDepDelayCalc;
 
-	public SimpleLegTravelTimeEstimatorFactory (
-			final PlanomatConfigGroup.SimLegInterpretation simLegInterpretation,
-			final PlanomatConfigGroup.RoutingCapability routingCapability,
-			final PlanRouterAdapter routingAlgorithm,
-			final Network network,
-			final TravelTime travelTime,
-			final DepartureDelayAverageCalculator delay) {
-		this.factory = new LegTravelTimeEstimatorFactory( travelTime, delay );
-		this.simLegInterpretation = simLegInterpretation;
-		this.routingCapability = routingCapability;
-		this.routingAlgorithm = routingAlgorithm;
-		this.network = network;
+	public LegTravelTimeEstimatorFactory(TravelTime travelTime, DepartureDelayAverageCalculator depDelayCalc) {
+		super();
+		this.travelTime = travelTime;
+		this.tDepDelayCalc = depDelayCalc;
 	}
 
-	public LegTravelTimeEstimator createLegTravelTimeEstimator(
-			final Plan plan ) {
-		return factory.getLegTravelTimeEstimator(
-				plan,
-				simLegInterpretation,
-				routingCapability,
-				routingAlgorithm,
-				network);
+	public LegTravelTimeEstimator getLegTravelTimeEstimator(
+			Plan plan,
+			PlanomatConfigGroup.SimLegInterpretation simLegInterpretation,
+			PlanomatConfigGroup.RoutingCapability routingCapability,
+			PlanRouterAdapter routingAlgorithm,
+			Network network) {
+		
+		LegTravelTimeEstimator legTravelTimeEstimator = null;
+		if (routingCapability.equals(PlanomatConfigGroup.RoutingCapability.fixedRoute)) {
+			legTravelTimeEstimator = new FixedRouteLegTravelTimeEstimator(
+					plan,
+					this.travelTime, 
+					this.tDepDelayCalc, 
+					routingAlgorithm,
+					simLegInterpretation,
+					network);
+			
+		} else if (routingCapability.equals(PlanomatConfigGroup.RoutingCapability.linearInterpolation)) {
+			
+			legTravelTimeEstimator = new LinearInterpolationLegTravelTimeEstimator(
+					this.travelTime,
+					this.tDepDelayCalc,
+					routingAlgorithm,
+					simLegInterpretation,
+					network);
+			
+		}
+		
+		return legTravelTimeEstimator;
 	}
+	
 }
-

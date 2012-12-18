@@ -1,10 +1,10 @@
 /* *********************************************************************** *
  * project: org.matsim.*
- * TimeModeChooserModule.java
+ * AbstractLegTravelTimeEstimator.java
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2012 by the members listed in the COPYING,        *
+ * copyright       : (C) 2008 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -17,31 +17,39 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.tsplanoptimizer.timemodechooser;
 
-import org.matsim.core.controler.Controler;
-import org.matsim.core.replanning.modules.AbstractMultithreadedModule;
-import org.matsim.core.trafficmonitoring.DepartureDelayAverageCalculator;
-import org.matsim.population.algorithms.PlanAlgorithm;
+package playground.thibautd.agentsmating.logitbasedmating.utils;
 
-/**
- * @author thibautd
- */
-public class TimeModeChooserModule extends AbstractMultithreadedModule {
-	private final Controler controler;
-	private final DepartureDelayAverageCalculator delay;
+import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.population.Activity;
+import org.matsim.api.core.v01.population.Leg;
+import org.matsim.api.core.v01.population.Plan;
+import org.matsim.core.population.LegImpl;
 
-	public TimeModeChooserModule(final Controler controler) {
-		super( controler.getConfig().global() );
-		this.controler = controler;
-		delay = new DepartureDelayAverageCalculator(
-				controler.getNetwork(),
-				controler.getConfig().travelTimeCalculator().getTraveltimeBinSize());
+public abstract class AbstractLegTravelTimeEstimator implements
+		LegTravelTimeEstimator {
+
+	protected Plan plan;
+
+	public AbstractLegTravelTimeEstimator(Plan plan) {
+		super();
+		this.plan = plan;
 	}
 
 	@Override
-	public PlanAlgorithm getPlanAlgoInstance() {
-		return new TimeModeChooserAlgorithm( controler , delay );
-	}
-}
+	public abstract double getLegTravelTimeEstimation(Id personId, double departureTime,
+			Activity actOrigin, Activity actDestination,
+			Leg legIntermediate, boolean doModifyLeg);
 
+	@Override
+	public abstract LegImpl getNewLeg(
+			String mode,
+			Activity actOrigin,
+			Activity actDestination,
+			int legPlanElementIndex,
+			double departureTime);
+
+//	public abstract void initPlanSpecificInformation(PlanImpl plan);
+//
+//	public abstract void resetPlanSpecificInformation();
+}
