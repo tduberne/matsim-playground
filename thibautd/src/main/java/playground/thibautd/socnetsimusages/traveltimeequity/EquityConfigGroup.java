@@ -18,26 +18,32 @@
  * *********************************************************************** */
 package playground.thibautd.socnetsimusages.traveltimeequity;
 
-import org.matsim.contrib.socnetsim.jointtrips.population.JointActingTypes;
-import org.matsim.core.controler.AbstractModule;
-import org.matsim.core.router.StageActivityTypesImpl;
-import org.matsim.core.scoring.ScoringFunctionFactory;
-import org.matsim.pt.PtConstants;
-import playground.thibautd.socnetsimusages.scoring.KtiScoringFunctionFactoryWithJointModesAndEquity;
+import org.matsim.core.config.ReflectiveConfigGroup;
+
+import java.util.Set;
 
 /**
  * @author thibautd
  */
-public class KtiScoringWithEquityModule extends AbstractModule {
-	@Override
-	public void install() {
-		binder().bind( TravelTimesRecord.class ).toInstance(
-				new TravelTimesRecord(
-						new StageActivityTypesImpl(
-								PtConstants.TRANSIT_ACTIVITY_TYPE,
-								JointActingTypes.INTERACTION
-						)) );
-		addEventHandlerBinding().to( TravelTimesRecord.class );
-		binder().bind(ScoringFunctionFactory.class).to(KtiScoringFunctionFactoryWithJointModesAndEquity.class);
+public class EquityConfigGroup extends ReflectiveConfigGroup {
+	public static final String GROUP_NAME = "equityScoring";
+
+	private double betaStandardDev = 1;
+	// or not? can come form joint scoring...
+	//private Set<String> activityTypes;
+	//private boolean importActivityTypesFromScoring;
+
+	public EquityConfigGroup() {
+		super( GROUP_NAME );
+	}
+
+	@StringGetter( "betaStandardDev" )
+	public double getBetaStandardDev() {
+		return betaStandardDev;
+	}
+
+	@StringSetter( "betaStandardDev" )
+	public void setBetaStandardDev(double betaStandardDev) {
+		this.betaStandardDev = betaStandardDev;
 	}
 }
