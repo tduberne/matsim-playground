@@ -1,10 +1,9 @@
 /* *********************************************************************** *
  * project: org.matsim.*
- * RunMatsim2010SocialScenario.java
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2014 by the members listed in the COPYING,        *
+ * copyright       : (C) 2013 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -22,31 +21,31 @@ package playground.thibautd.socnetsimusages.run;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.contrib.socnetsim.framework.SocialNetworkConfigGroup;
+import org.matsim.contrib.socnetsim.framework.controller.JointDecisionProcessModule;
+import org.matsim.contrib.socnetsim.framework.controller.SocialNetworkModule;
+import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
+import org.matsim.contrib.socnetsim.framework.population.SocialNetworkReader;
+import org.matsim.contrib.socnetsim.jointactivities.scoring.JointActivitiesScoringModule;
+import org.matsim.contrib.socnetsim.jointtrips.JointTripsModule;
+import org.matsim.contrib.socnetsim.run.RunUtils;
+import org.matsim.contrib.socnetsim.run.ScoringFunctionConfigGroup;
 import org.matsim.contrib.socnetsim.usage.ConfigConfiguredPlanLinkIdentifierModule;
+import org.matsim.contrib.socnetsim.usage.JointScenarioUtils;
+import org.matsim.contrib.socnetsim.usage.analysis.SocnetsimDefaultAnalysisModule;
+import org.matsim.contrib.socnetsim.usage.replanning.DefaultGroupStrategyRegistryModule;
 import org.matsim.core.config.Config;
-import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.ConfigReader;
+import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.ReflectiveConfigGroup;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.OutputDirectoryLogging;
-
+import org.matsim.core.network.NetworkImpl;
+import org.matsim.facilities.algorithms.WorldConnectLocations;
 import playground.ivt.matsim2030.Matsim2030Utils;
 import playground.ivt.matsim2030.generation.ScenarioMergingConfigGroup;
 import playground.thibautd.initialdemandgeneration.transformation.SocialNetworkedPopulationDilutionUtils;
-import playground.thibautd.initialdemandgeneration.transformation.SocialNetworkedPopulationDilutionUtils.DilutionType;
-import org.matsim.contrib.socnetsim.framework.SocialNetworkConfigGroup;
-import org.matsim.contrib.socnetsim.framework.controller.JointDecisionProcessModule;
-import org.matsim.contrib.socnetsim.jointactivities.scoring.JointActivitiesScoringModule;
-import org.matsim.contrib.socnetsim.jointtrips.JointTripsModule;
-import org.matsim.contrib.socnetsim.framework.controller.SocialNetworkModule;
-import org.matsim.contrib.socnetsim.usage.analysis.SocnetsimDefaultAnalysisModule;
-import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
-import org.matsim.contrib.socnetsim.framework.population.SocialNetworkReader;
-import org.matsim.contrib.socnetsim.usage.replanning.DefaultGroupStrategyRegistryModule;
-import org.matsim.contrib.socnetsim.run.RunUtils;
-import org.matsim.contrib.socnetsim.run.ScoringFunctionConfigGroup;
-import org.matsim.contrib.socnetsim.usage.JointScenarioUtils;
 import playground.thibautd.socnetsimusages.traveltimeequity.EquityConfigGroup;
 import playground.thibautd.socnetsimusages.traveltimeequity.EquityStrategiesModule;
 import playground.thibautd.socnetsimusages.traveltimeequity.KtiScoringWithEquityModule;
@@ -54,9 +53,8 @@ import playground.thibautd.socnetsimusages.traveltimeequity.KtiScoringWithEquity
 /**
  * @author thibautd
  */
-public class RunMatsim2010SocialScenario {
-	private static final Logger log =
-		Logger.getLogger(RunMatsim2010SocialScenario.class);
+public class RunSocialScenarioWithEquity {
+	private static final Logger log = Logger.getLogger(RunSocialScenarioWithEquity.class);
 
 	public static void main(final String[] args) {
 		OutputDirectoryLogging.catchLogEntries();
@@ -103,14 +101,15 @@ public class RunMatsim2010SocialScenario {
 				} );
 
 
-					controller.run();
-				}
+		new WorldConnectLocations( config ).connectFacilitiesWithLinks(
+				scenario.getActivityFacilities(),
+				(NetworkImpl) scenario.getNetwork() );
+		controller.run();
+	}
 
 	private static Scenario loadScenario(final Config config) {
-		final Scenario scenario = JointScenarioUtils.loadScenario( config );
+		final Scenario scenario = JointScenarioUtils.loadScenario(config);
 		RunUtils.enrichScenario(scenario);
-		Matsim2030Utils.enrichScenario( scenario );
-		ZurichScenarioUtils.enrichScenario( scenario );
 		scenario.getConfig().controler().setCreateGraphs( false ); // cannot set that from config file...
 
 		final SocialNetworkConfigGroup snConf = (SocialNetworkConfigGroup)
@@ -123,19 +122,6 @@ public class RunMatsim2010SocialScenario {
 			if ( !sn.getEgos().contains( p ) ) sn.addEgo( p );
 		}
 
-		final ScenarioMergingConfigGroup mergingGroup = (ScenarioMergingConfigGroup)
-			config.getModule( ScenarioMergingConfigGroup.GROUP_NAME );
-		if ( mergingGroup.getPerformDilution() ) {
-			final SocialDilutionConfigGroup dilutionConfig = (SocialDilutionConfigGroup)
-				config.getModule( SocialDilutionConfigGroup.GROUP_NAME );
-			log.info( "performing \"dilution\" with method "+dilutionConfig.getDilutionType() );
-			SocialNetworkedPopulationDilutionUtils.dilute(
-					dilutionConfig.getDilutionType(),
-					scenario,
-					mergingGroup.getDilutionCenter(),
-					mergingGroup.getDilutionRadiusM() );
-		}
-
 		assert sn.getEgos().size() == scenario.getPopulation().getPersons().size() : sn.getEgos().size() +" != "+ scenario.getPopulation().getPersons().size();
 		return scenario;
 	}
@@ -143,35 +129,10 @@ public class RunMatsim2010SocialScenario {
 	private static Config loadConfig(final String configFile) {
 		final Config config = ConfigUtils.createConfig();
 		JointScenarioUtils.addConfigGroups( config );
-		config.addModule( new KtiInputFilesConfigGroup() );
 		RunUtils.addConfigGroups( config );
-		// some redundancy here... just add scenarioMerging "by hand"
-		//Matsim2030Utils.addDefaultGroups( config );
 		config.addModule( new ScenarioMergingConfigGroup() );
-		config.addModule( new SocialDilutionConfigGroup() );
 		config.addModule( new EquityConfigGroup() );
 		new ConfigReader( config ).parse( configFile );
 		return config;
-	}
-
-	private static class SocialDilutionConfigGroup extends ReflectiveConfigGroup {
-		public static final String GROUP_NAME = "socialDilution";
-
-		// this is the most efficient (it removes the most agents)
-		private DilutionType dilutionType = DilutionType.areaOnly;
-
-		public SocialDilutionConfigGroup() {
-			super( GROUP_NAME );
-		}
-
-		@StringGetter( "dilutionType" )
-		public DilutionType getDilutionType() {
-			return this.dilutionType;
-		}
-
-		@StringSetter( "dilutionType" )
-		public void setDilutionType(DilutionType dilutionType) {
-			this.dilutionType = dilutionType;
-		}
 	}
 }
