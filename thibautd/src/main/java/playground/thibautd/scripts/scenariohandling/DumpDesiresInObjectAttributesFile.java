@@ -1,10 +1,10 @@
 /* *********************************************************************** *
  * project: org.matsim.*
- * GenerateDesiresFromConfigFile.java
+ * DumpDesiresInObjectAttributesFile.java
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2014 by the members listed in the COPYING,        *
+ * copyright       : (C) 2013 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -19,48 +19,45 @@
  * *********************************************************************** */
 package playground.thibautd.scripts.scenariohandling;
 
-import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.api.core.v01.population.Person;
 import org.matsim.core.config.Config;
-import org.matsim.core.config.groups.PlanCalcScoreConfigGroup.ActivityParams;
-import org.matsim.core.population.MatsimPopulationReader;
+import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.population.PersonImpl;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.population.Desires;
 import org.matsim.utils.objectattributes.ObjectAttributes;
 import org.matsim.utils.objectattributes.ObjectAttributesXmlWriter;
 
-import org.matsim.contrib.socnetsim.usage.JointScenarioUtils;
 import playground.thibautd.utils.DesiresConverter;
 
 /**
  * @author thibautd
  */
-public class GenerateDesiresFromConfigFile {
+public class DumpDesiresInObjectAttributesFile {
 	public static void main(final String[] args) {
-		final String configFile = args[ 0 ];
-		final String outObjectAttributes = args[ 1 ];
+		final String inPopulation = args[ 0 ];
+		final String inFacilities = args[ 1 ];
+		final String inNetwork = args[ 2 ];
+		final String outAttributes = args[ 3 ];
 
-		final Config config = JointScenarioUtils.loadConfig( configFile );
-		final Scenario sc = ScenarioUtils.createScenario( config );
-		new MatsimPopulationReader( sc ).readFile( config.plans().getInputFile() );
+		final Config config = ConfigUtils.createConfig();
+		config.addCoreModules();
+		config.plans().setInputFile( inPopulation );
+		config.network().setInputFile( inNetwork );
+		config.facilities().setInputFile( inFacilities );
+		final Scenario scenario = ScenarioUtils.loadScenario( config );
 
-		final ObjectAttributes desires = new ObjectAttributes();
-		for ( Person p : sc.getPopulation().getPersons().values() ) {
-			final Desires d = new Desires( null );
-			for ( ActivityParams params : config.planCalcScore().getActivityParams() ) {
-				d.putActivityDuration(
-						params.getActivityType(),
-						params.getTypicalDuration() );
-			}
-			desires.putAttribute(
-					p.getId().toString(),
-					"desires",
-					d );
+		final ObjectAttributes attributes = new ObjectAttributes();
+
+		for ( Person person : scenario.getPopulation().getPersons().values() ) {
+			final Desires desires = ((PersonImpl) person).getDesires();
+			attributes.putAttribute( person.getId().toString() , "desires" , desires );
 		}
 
-		final ObjectAttributesXmlWriter writer = new ObjectAttributesXmlWriter( desires );
+		final ObjectAttributesXmlWriter writer = new ObjectAttributesXmlWriter( attributes );
 		writer.putAttributeConverter( Desires.class , new DesiresConverter() );
-		writer.writeFile( outObjectAttributes );
+		writer.writeFile( outAttributes );
 	}
 }
 
