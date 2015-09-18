@@ -1,10 +1,9 @@
 /* *********************************************************************** *
  * project: org.matsim.*
- * NullMoveChecker.java
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2012 by the members listed in the COPYING,        *
+ * copyright       : (C) 2013 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -17,47 +16,34 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.tsplanoptimizer.framework;
+package playground.thibautd.socnetsimusages.traveltimeequity;
 
-import java.util.Iterator;
+import org.matsim.core.config.ReflectiveConfigGroup;
+
+import java.util.Set;
 
 /**
- * Forbids the moves which do not change the solution.
- *
  * @author thibautd
  */
-public class NullMoveChecker<T> implements TabuChecker<T> {
+public class EquityConfigGroup extends ReflectiveConfigGroup {
+	public static final String GROUP_NAME = "equityScoring";
 
-	@Override
-	public void notifyMove(
-			final Solution<? extends T> currentSolution,
-			final Move toApply,
-			final double resultingFitness) {
-		// do nothing
+	private double betaStandardDev = 1;
+	// or not? can come form joint scoring...
+	//private Set<String> activityTypes;
+	//private boolean importActivityTypesFromScoring;
+
+	public EquityConfigGroup() {
+		super( GROUP_NAME );
 	}
 
-	@Override
-	public boolean isTabu(
-			final Solution<? extends T> solution,
-			final Move move) {
-		final Solution<?> newSolution = move.apply( solution );
+	@StringGetter( "betaStandardDev" )
+	public double getBetaStandardDev() {
+		return betaStandardDev;
+	}
 
-		final Iterator<? extends Value> oldIt = solution.getGenotype().iterator();
-		final Iterator<? extends Value> newIt = newSolution.getGenotype().iterator();
-
-		while (oldIt.hasNext()) {
-			if (!oldIt.next().getValue().equals( newIt.next().getValue() )) {
-				// a different value was found
-				return false;
-			}
-		}
-
-		if (newIt.hasNext()) {
-			throw new RuntimeException( "unexpected new solution length" );
-		}
-
-		// all values were identical
-		return true;
+	@StringSetter( "betaStandardDev" )
+	public void setBetaStandardDev(double betaStandardDev) {
+		this.betaStandardDev = betaStandardDev;
 	}
 }
-
