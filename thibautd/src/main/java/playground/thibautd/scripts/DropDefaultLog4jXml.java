@@ -16,31 +16,33 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.socnetsimusages.traveltimeequity;
+package playground.thibautd.scripts;
 
-import org.matsim.contrib.socnetsim.jointtrips.population.JointActingTypes;
-import org.matsim.core.controler.AbstractModule;
-import org.matsim.core.router.StageActivityTypesImpl;
-import org.matsim.core.scoring.ScoringFunctionFactory;
-import org.matsim.pt.PtConstants;
-import playground.ivt.analysis.scoretracking.ScoreTrackingModule;
-import playground.thibautd.socnetsimusages.scoring.KtiScoringFunctionFactoryWithJointModesAndEquity;
+import org.apache.log4j.helpers.Loader;
+import org.matsim.core.utils.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 /**
+ * can be then modified and used using <tt>-Dlog4j.configuration=file://\<path\></tt>
  * @author thibautd
  */
-public class KtiScoringWithEquityModule extends AbstractModule {
-	@Override
-	public void install() {
-		install( new ScoreTrackingModule() );
+public class DropDefaultLog4jXml {
+	public static void main(final String[] args) throws IOException {
+		final String out = args.length == 0 ? "log4j.xml" : args[0];
 
-		binder().bind( TravelTimesRecord.class ).toInstance(
-				new TravelTimesRecord(
-						new StageActivityTypesImpl(
-								PtConstants.TRANSIT_ACTIVITY_TYPE,
-								JointActingTypes.INTERACTION
-						)) );
-		addEventHandlerBinding().to( TravelTimesRecord.class );
-		binder().bind(ScoringFunctionFactory.class).to(KtiScoringFunctionFactoryWithJointModesAndEquity.class);
+		final URL url = Loader.getResource("log4j.xml");
+
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+		try (final BufferedWriter writer = IOUtils.getBufferedWriter(out) ) {
+			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+				writer.write(line);
+				writer.newLine();
+			}
+		}
 	}
 }
