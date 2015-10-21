@@ -1,10 +1,9 @@
 /* *********************************************************************** *
  * project: org.matsim.*
- * ModelRunner.java
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2015 by the members listed in the COPYING,        *
+ * copyright       : (C) 2013 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -17,14 +16,33 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.socnetgensimulated.framework;
+package playground.thibautd.scripts;
 
-import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
+import org.apache.log4j.helpers.Loader;
+import org.matsim.core.utils.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 /**
+ * can be then modified and used using <tt>-Dlog4j.configuration=file://\<path\></tt>
  * @author thibautd
  */
-public interface ModelRunner {
-	SocialNetwork runModel( Thresholds thresholds );
-}
+public class DropDefaultLog4jXml {
+	public static void main(final String[] args) throws IOException {
+		final String out = args.length == 0 ? "log4j.xml" : args[0];
 
+		final URL url = Loader.getResource("log4j.xml");
+
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+		try (final BufferedWriter writer = IOUtils.getBufferedWriter(out) ) {
+			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+				writer.write(line);
+				writer.newLine();
+			}
+		}
+	}
+}
