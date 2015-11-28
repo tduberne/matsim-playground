@@ -16,16 +16,47 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.maxess.nestedlogitaccessibility.framework;
+package playground.thibautd.maxess.nestedlogitaccessibility.scripts;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
-
-import java.util.Map;
+import org.apache.log4j.Logger;
+import playground.thibautd.maxess.nestedlogitaccessibility.framework.AccessibilityComputationResult;
+import playground.thibautd.maxess.nestedlogitaccessibility.writers.BasicPersonAccessibilityWriter;
 
 /**
  * @author thibautd
  */
-public interface ChoiceSetIdentifier<N extends Enum<N>> {
-	Map<String, NestedChoiceSet<N>> identifyChoiceSet( Person p );
+public class AdvantageColumnCalculator implements BasicPersonAccessibilityWriter.ColumnCalculator {
+	private static final Logger log = Logger.getLogger( AdvantageColumnCalculator.class );
+	private final String name;
+	private final String better;
+	private final String worse;
+
+	public AdvantageColumnCalculator(
+			final String name,
+			final String better,
+			final String worse ) {
+		this.name = name;
+		this.better = better;
+		this.worse = worse;
+	}
+
+	@Override
+	public String getColumnName() {
+		return name;
+	}
+
+	@Override
+	public double computeValue( AccessibilityComputationResult.PersonAccessibilityComputationResult personResults ) {
+		final Double noCar = personResults.getAccessibilities().get( worse );
+		final Double all = personResults.getAccessibilities().get( better );
+
+		if ( noCar == null ) {
+			log.error( "no value of accessibility found for "+worse );
+		}
+		if ( all == null ) {
+			log.error( "no value of accessibility found for "+better );
+		}
+
+		return all == null || noCar == null ? Double.NaN : all - noCar;
+	}
 }
