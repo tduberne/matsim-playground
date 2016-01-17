@@ -1,10 +1,9 @@
 /* *********************************************************************** *
  * project: org.matsim.*
- * ExtractHitchHikingDistancesFromEvents.java
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2012 by the members listed in the COPYING,        *
+ * copyright       : (C) 2013 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -17,35 +16,54 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.hitchiking.analysis;
+package playground.thibautd.router.connectionscanalgorithm;
 
-import org.matsim.api.core.v01.Scenario;
-import org.matsim.core.api.experimental.events.EventsManager;
-import org.matsim.core.config.ConfigUtils;
-import org.matsim.core.events.EventsReaderXMLv1;
-import org.matsim.core.events.EventsUtils;
-import org.matsim.core.network.MatsimNetworkReader;
-import org.matsim.core.scenario.ScenarioUtils;
+import org.matsim.api.core.v01.Id;
+import org.matsim.pt.transitSchedule.api.TransitStopFacility;
 
 /**
  * @author thibautd
  */
-public class ExtractHitchHikingDistancesFromEvents {
-	public static void main(final String[] args) {
-		final String networkFile = args[ 0 ];
-		final String eventsFile = args[ 1 ];
-		final String outfile = args[ 2 ];
+public class Connection implements Comparable<Connection> {
+	private final int tripId;
+	private final double departureTime, arrivalTime;
+	private final Id<TransitStopFacility> departureStation, arrivalStation;
 
-		Scenario sc = ScenarioUtils.createScenario( ConfigUtils.createConfig() );
-		new MatsimNetworkReader(sc.getNetwork()).readFile( networkFile );
-		HitchHikingDistancesEventHandler handler =
-			new HitchHikingDistancesEventHandler(
-					sc.getNetwork(),
-					outfile);
-		EventsManager events = EventsUtils.createEventsManager();
-		events.addHandler( handler );
-		new EventsReaderXMLv1( events ).parse( eventsFile );
-		handler.close();
+	public Connection(
+			final int tripId,
+			final double departureTime,
+			final double arrivalTime,
+			final Id<TransitStopFacility> departureStation,
+			final Id<TransitStopFacility> arrivalStation) {
+		this.tripId = tripId;
+		this.departureTime = departureTime;
+		this.arrivalTime = arrivalTime;
+		this.departureStation = departureStation;
+		this.arrivalStation = arrivalStation;
+	}
+
+	public int getTripId() {
+		return tripId;
+	}
+
+	public double getDepartureTime() {
+		return departureTime;
+	}
+
+	public double getArrivalTime() {
+		return arrivalTime;
+	}
+
+	public Id<TransitStopFacility> getDepartureStation() {
+		return departureStation;
+	}
+
+	public Id<TransitStopFacility> getArrivalStation() {
+		return arrivalStation;
+	}
+
+	@Override
+	public int compareTo(Connection o) {
+		return Double.compare( departureTime , o.departureTime );
 	}
 }
-
