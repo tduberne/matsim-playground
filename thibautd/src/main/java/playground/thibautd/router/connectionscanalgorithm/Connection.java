@@ -16,40 +16,54 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.maxess.prepareforbiogeme.tripbased;
+package playground.thibautd.router.connectionscanalgorithm;
 
-import org.matsim.core.router.TripStructureUtils;
-import playground.thibautd.maxess.prepareforbiogeme.framework.ChoiceSituation;
-
-import java.util.List;
+import org.matsim.api.core.v01.Id;
+import org.matsim.pt.transitSchedule.api.TransitStopFacility;
 
 /**
  * @author thibautd
  */
-public class TripChoiceSituation implements ChoiceSituation<Trip> {
-	private final Trip trip;
-	private final List<TripStructureUtils.Trip> tripSequence;
-	private final int positionInTripSequence;
+public class Connection implements Comparable<Connection> {
+	private final int tripId;
+	private final double departureTime, arrivalTime;
+	private final Id<TransitStopFacility> departureStation, arrivalStation;
 
-	public TripChoiceSituation(
-			final Trip trip,
-			final List<TripStructureUtils.Trip> tripSequence,
-			final int positionInTripSequence) {
-		this.trip = trip;
-		this.tripSequence = tripSequence;
-		this.positionInTripSequence = positionInTripSequence;
+	public Connection(
+			final int tripId,
+			final double departureTime,
+			final double arrivalTime,
+			final Id<TransitStopFacility> departureStation,
+			final Id<TransitStopFacility> arrivalStation) {
+		this.tripId = tripId;
+		this.departureTime = departureTime;
+		this.arrivalTime = arrivalTime;
+		this.departureStation = departureStation;
+		this.arrivalStation = arrivalStation;
+	}
+
+	public int getTripId() {
+		return tripId;
+	}
+
+	public double getDepartureTime() {
+		return departureTime;
+	}
+
+	public double getArrivalTime() {
+		return arrivalTime;
+	}
+
+	public Id<TransitStopFacility> getDepartureStation() {
+		return departureStation;
+	}
+
+	public Id<TransitStopFacility> getArrivalStation() {
+		return arrivalStation;
 	}
 
 	@Override
-	public Trip getChoice() {
-		return trip;
-	}
-
-	public List<TripStructureUtils.Trip> getTripSequence() {
-		return tripSequence;
-	}
-
-	public int getPositionInTripSequence() {
-		return positionInTripSequence;
+	public int compareTo(Connection o) {
+		return Double.compare( departureTime , o.departureTime );
 	}
 }

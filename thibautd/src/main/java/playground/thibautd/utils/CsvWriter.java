@@ -16,72 +16,59 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.maxess.prepareforbiogeme.framework;
+package playground.thibautd.utils;
 
 import org.matsim.core.utils.io.IOUtils;
 import org.matsim.core.utils.io.UncheckedIOException;
-import org.matsim.core.utils.misc.Counter;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author thibautd
  */
-public class ChoiceDataSetWriter<T> implements AutoCloseable {
+public class CsvWriter implements AutoCloseable {
 	private final BufferedWriter writer;
-	private final ChoiceSetRecordFiller<T> recordFiller;
+	private final CsvUtils.TitleLine titleLine;
 
-	private final Counter counter = new Counter( "Write record # " );
+	private String[] currentLine = null;
 
-	private Collection<String> header = null;
+	private final char sep, quote;
 
-	public ChoiceDataSetWriter(
-			final ChoiceSetRecordFiller<T> recordFiller,
-			final String filename ) {
-		this.recordFiller = recordFiller;
-		this.writer = IOUtils.getBufferedWriter( filename );
-	}
-
-	private void writeLine(final Collection<?> v) {
+	public CsvWriter( char sep, char quote, final CsvUtils.TitleLine titleLine, final String file ) {
+		this.titleLine = titleLine;
+		this.sep = sep;
+		this.quote = quote;
+		this.writer = IOUtils.getBufferedWriter( file );
 		try {
-			counter.incCounter();
-			int i=0;
-			for ( Object o : v ) {
-				writer.write( o+(i++ < v.size() ? "\t" : "") );
-			}
-			writer.newLine();
+			writer.write( CsvUtils.buildCsvLine( sep , quote , titleLine.getNames() ) );
 		}
-		catch (IOException e) {
+		catch ( IOException e ) {
 			throw new UncheckedIOException( e );
 		}
 	}
 
-	public void write( final ChoiceSet<T> cs ) {
-		final Map<String,? extends Number> fields = recordFiller.getFieldValues( cs );
-		if ( header == null ) {
-			header = fields.keySet();
-			writeLine(header);
+	public void setField( final String name , final String value ) {
+		if ( currentLine == null ) currentLine = new String[ titleLine.getNField() ];
+		this.currentLine[ titleLine.getIndexOfField( name ) ] = value;
+	}
+
+	public void nextLine() {
+		if ( currentLine == null ) return;
+		try {
+			writer.newLine();
+			writer.write( CsvUtils.buildCsvLine( sep , quote , currentLine ) );
+			currentLine = null;
 		}
-		writeLine( fields.values() );
+		catch ( IOException e ) {
+			throw new UncheckedIOException( e );
+		}
 	}
 
 	@Override
 	public void close() throws IOException {
-		counter.printCounter();
+		nextLine();
 		writer.close();
 	}
-
-	public interface ChoiceSetRecordFiller<T> {
-		/**
-		 * Returning numbers is needed for BIOGEME, but one might relax the requirement if estimation is done for instance
-		 * with R-mlogit
-		 * @param cs
-		 * @return
-		 */
-		Map<String,? extends Number> getFieldValues( ChoiceSet<T> cs );
-	}
 }
+

@@ -16,13 +16,55 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.maxess.prepareforbiogeme.framework;
+package playground.thibautd.router.connectionscanalgorithm;
 
-import org.matsim.api.core.v01.population.Person;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author thibautd
  */
-public interface ChoiceSetSampler<T,C extends ChoiceSituation<T>> {
-	ChoiceSet<T> sampleChoiceSet( Person decisionMaker , C choice );
+public class Footpaths {
+	private final TIntObjectMap<List<Footpath>> footpathsPerStation = new TIntObjectHashMap<>();
+
+	public void addFootpath( final int station , final Footpath footpath ) {
+		List<Footpath> list = footpathsPerStation.get( station );
+
+		if ( list == null ) {
+			list = new ArrayList<>(  );
+			footpathsPerStation.put( station , list );
+		}
+
+		list.add( footpath );
+	}
+
+	public List<Footpath> getFootpaths( final int station ) {
+		return footpathsPerStation.get( station );
+	}
+
+	public static class Footpath {
+		private final int originStation, destinationStation;
+		private final double walkDistance;
+
+		public Footpath( int originStation, int destinationStation, double walkDistance ) {
+			this.originStation = originStation;
+			this.destinationStation = destinationStation;
+			this.walkDistance = walkDistance;
+		}
+
+		public int getDestinationStation() {
+			return destinationStation;
+		}
+
+		public int getOriginStation() {
+			return originStation;
+		}
+
+		public double getWalkDistance() {
+			return walkDistance;
+		}
+	}
 }

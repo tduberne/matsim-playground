@@ -16,16 +16,16 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.maxess.prepareforbiogeme.framework;
+package playground.thibautd.router.connectionscanalgorithm;
 
-import org.matsim.api.core.v01.population.Plan;
-
-import java.util.List;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
+ * Simple implementation, without the various optimisations presented in "connection scan accelerated"
+ *
  * @author thibautd
  */
-public interface ChoicesIdentifier<T extends ChoiceSituation<?>> {
-	List<T> identifyChoices(final Plan p);
-
+public class ConnectionScanAlgorithm {
 }
+
