@@ -16,41 +16,62 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.socnetgensimulated.arentzemodel;
+package playground.thibautd.utils;
 
-import org.matsim.api.core.v01.Coord;
-import org.matsim.api.core.v01.Id;
-import playground.thibautd.initialdemandgeneration.socnetgensimulated.framework.IndexedPopulation;
-import playground.thibautd.utils.BooleanList;
+import java.util.Arrays;
 
 /**
+ * Implements a memory-efficient storage for booleans, using bitmasks. Useful when storing huge amounts of booleans
+ * in a setting where memory consumption becomes a problem.
+ * Should consume around 8 times less memory than a boolean array.
+ *
  * @author thibautd
  */
-public class ArentzePopulation extends IndexedPopulation {
-	private final char[] ageCategory;
-	private final BooleanList isMale;
-	private final Coord[] coord;
+public class BooleanList {
+	private int[] integer;
 
-	public ArentzePopulation(
-			final Id[] ids,
-			final char[] ageCategory,
-			final boolean[] isMale,
-			final Coord[] coord ) {
-		super(ids);
-		this.ageCategory = ageCategory;
-		this.isMale = new BooleanList( isMale );
-		this.coord = coord;
+	private int size = 0;
+
+	public BooleanList() {
+		this.integer = new int[ 10 ];
 	}
 
-	public char getAgeCategory(final int agent) {
-		return ageCategory[agent];
+	public BooleanList( final boolean[] bs ) {
+		integer = new int[ (int) Math.ceil( bs.length / 31.0 ) ];
+		for ( boolean b : bs ) add( b );
 	}
 
-	public boolean isMale(final int agent) {
-		return isMale.get( agent );
+	public void add( final boolean b ) {
+		size++;
+		expand();
+		set( size - 1 , b );
 	}
 
-	public Coord getCoord(final int agent) {
-		return coord[agent];
+	public boolean get( int i ) {
+		return ( integer[ i / 31 ] & ( 1 << ( i - ( i / 31 ) ) ) ) != 0;
+	}
+
+	private void expand() {
+		final int nIntegers = size / 31;
+		if ( integer.length == nIntegers ) {
+			integer = Arrays.copyOf( integer , integer.length * 2 );
+		}
+	}
+
+	private void set( final int i , boolean b ) {
+		if ( b ) {
+			integer[ i / 31 ] |= 1 << ( i - ( i / 31 ) );
+		}
+		else {
+			integer[ i / 31 ] &= ~(1 << (i - ( i / 31 ) ));
+		}
+	}
+
+	public int size() {
+		return size;
+	}
+
+	int sizeStoringArray() {
+		return integer.length;
 	}
 }
