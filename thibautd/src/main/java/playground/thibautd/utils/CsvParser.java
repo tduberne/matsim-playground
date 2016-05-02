@@ -16,41 +16,52 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.socnetgensimulated.arentzemodel;
+package playground.thibautd.utils;
 
-import org.matsim.api.core.v01.Coord;
-import org.matsim.api.core.v01.Id;
-import playground.thibautd.initialdemandgeneration.socnetgensimulated.framework.IndexedPopulation;
-import playground.thibautd.utils.BooleanList;
+import org.matsim.core.utils.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /**
  * @author thibautd
  */
-public class ArentzePopulation extends IndexedPopulation {
-	private final char[] ageCategory;
-	private final BooleanList isMale;
-	private final Coord[] coord;
+public class CsvParser implements AutoCloseable {
+	private final char sep, quote;
+	private final BufferedReader reader;
 
-	public ArentzePopulation(
-			final Id[] ids,
-			final char[] ageCategory,
-			final boolean[] isMale,
-			final Coord[] coord ) {
-		super(ids);
-		this.ageCategory = ageCategory;
-		this.isMale = new BooleanList( isMale );
-		this.coord = coord;
+	private final CsvUtils.TitleLine titleLine;
+
+	private String[] currentLine = null;
+
+	public CsvParser(
+			final char sep,
+			final char quote,
+			final String file ) throws IOException {
+		this.sep = sep;
+		this.quote = quote;
+		this.reader = IOUtils.getBufferedReader( file );
+		this.titleLine = CsvUtils.parseTitleLine( sep , quote , reader.readLine() );
 	}
 
-	public char getAgeCategory(final int agent) {
-		return ageCategory[agent];
+	public CsvUtils.TitleLine getTitleLine() {
+		return titleLine;
 	}
 
-	public boolean isMale(final int agent) {
-		return isMale.get( agent );
+	public boolean nextLine() throws IOException {
+		final String l = reader.readLine();
+		if ( l == null ) return false;
+		currentLine = CsvUtils.parseCsvLine( sep , quote , l );
+		return true;
 	}
 
-	public Coord getCoord(final int agent) {
-		return coord[agent];
+	public String getField( final String name ) {
+		// no check of validity. Assume users of this class know what they are doing, or are able to understand what goes wrong
+		return currentLine[ titleLine.getIndexOfField( name ) ];
+	}
+
+	@Override
+	public void close() throws IOException {
+		reader.close();
 	}
 }

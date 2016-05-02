@@ -16,13 +16,16 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.socnetgensimulated.arentzemodel;
+package playground.thibautd.initialdemandgeneration.socnetgensimulated.estimatedsampling;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.Provides;
 import org.apache.log4j.Logger;
 import org.matsim.core.utils.geometry.CoordUtils;
+import playground.thibautd.initialdemandgeneration.socnetgensimulated.arentzemodel.ArentzePopulation;
+import playground.thibautd.initialdemandgeneration.socnetgensimulated.arentzemodel.TRBModelConfigGroup;
 import playground.thibautd.initialdemandgeneration.socnetgensimulated.framework.TieUtility.DeterministicPart;
 import playground.thibautd.initialdemandgeneration.socnetgensimulated.framework.TieUtility.ErrorTerm;
 import playground.thibautd.initialdemandgeneration.socnetgensimulated.framework.TieUtility.GumbelErrorTerm;
@@ -30,44 +33,34 @@ import playground.thibautd.initialdemandgeneration.socnetgensimulated.framework.
 /**
  * @author thibautd
  */
-public class ArentzeTieUtilityModule extends AbstractModule {
-	private static final Logger log = Logger.getLogger(ArentzeTieUtilityModule.class);
+public class ContinuousAgeArentzeTieUtilityModule extends AbstractModule {
+	private static final Logger log = Logger.getLogger(ContinuousAgeArentzeTieUtilityModule.class);
 	@Override
 	protected void configure() {
 		log.debug( "Configuring "+getClass().getSimpleName() );
-		bind(DeterministicPart.class).toProvider(
-				new Provider<DeterministicPart>() {
-					@Inject ArentzePopulation population;
-					@Inject TRBModelConfigGroup pars;
-
-					@Override
-					public DeterministicPart get() {
-						return
-								new DeterministicPart() {
-									@Override
-									public double calcDeterministicPart(
-											final int ego,
-											final int alter ) {
-										final int ageClassDifference =
-										Math.abs(
-											population.getAgeCategory( ego ) -
-											population.getAgeCategory( alter ) );
-
-										// increase distance by 1 (normally meter) to avoid linking with all agents
-										// living in the same place.
-										// TODO: test sensitivity of the results to this
-										return pars.getB_logDist() * Math.log( CoordUtils.calcEuclideanDistance(population.getCoord(ego), population.getCoord(alter)) + 1 )
-												+ pars.getB_sameGender() * dummy( population.isMale( ego ) == population.isMale( alter ) )
-												+ pars.getB_ageDiff0() * dummy( ageClassDifference == 0 )
-												+ pars.getB_ageDiff2() * dummy( ageClassDifference == 2 )
-												+ pars.getB_ageDiff3() * dummy( ageClassDifference == 3 )
-												+ pars.getB_ageDiff4() * dummy( ageClassDifference == 4 );
-									}
-								};
-					}
-				});
+		// binding automatic if module has a @Provides method
+		// bind(DeterministicPart.class);
 		bind(ErrorTerm.class).to(GumbelErrorTerm.class);
 		log.debug( "Configuring "+getClass().getSimpleName()+": DONE" );
+	}
+
+	@Provides
+	private DeterministicPart createDeterministicPart( ArentzePopulation population , EstimatedSamplingModelConfigGroup pars ) {
+		return ( ego, alter ) -> {
+			final int ageDifference =
+				Math.abs(
+					population.getAgeCategory( ego ) -
+					population.getAgeCategory( alter ) );
+
+			final double distance =
+					CoordUtils.calcEuclideanDistance(
+							population.getCoord(ego),
+							population.getCoord(alter));
+
+			return pars.getB_logDist() * EstimatedSamplingModelConfigGroup.transform( pars.getDistanceTransformation() , distance ) +
+					+ pars.getB_sameGender() * dummy( population.isMale( ego ) == population.isMale( alter ) )
+					+ pars.getB_ageDiff() *  EstimatedSamplingModelConfigGroup.transform( pars.getAgeTransformation() , ageDifference );
+		};
 	}
 
 	private static double dummy(final boolean b) {
