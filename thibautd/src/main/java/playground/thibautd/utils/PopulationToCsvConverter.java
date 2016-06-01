@@ -3,7 +3,7 @@
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2015 by the members listed in the COPYING,        *
+ * copyright       : (C) 2013 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -16,40 +16,43 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
+package playground.thibautd.utils;
 
-package playground.thibautd.initialdemandgeneration.socnetgensimulated.framework;
+import org.matsim.api.core.v01.population.Person;
+import org.matsim.api.core.v01.population.Population;
+import org.matsim.core.utils.io.UncheckedIOException;
 
-import org.apache.log4j.Logger;
+import java.io.IOException;
+import java.util.Map;
 
-import java.util.ArrayList;
-import java.util.List;
-
-class ThreadGroup {
-	private final static Logger log = Logger.getLogger( ThreadGroup.class );
-
-	final List<Thread> threads = new ArrayList< >();
-	final List<Throwable> exceptions = new ArrayList< >();
-	final Thread.UncaughtExceptionHandler exceptionHandler =
-			( t, e ) -> {
-				log.error( "exception in thread "+t.getName() , e );
-				exceptions.add( e );
-			};
-
-	public void add( final Runnable r ) {
-		final Thread t = new Thread( r );
-		t.setUncaughtExceptionHandler( exceptionHandler );
-		threads.add( t );
+/**
+ * @author thibautd
+ */
+public class PopulationToCsvConverter {
+	public interface FieldExtractor {
+		Map<String, String> getFields( Person p );
 	}
 
-	public void run() {
-		for ( Thread t : threads ) t.start();
-		try {
-			for ( Thread t : threads ) t.join();
-		}
-		catch ( InterruptedException e ) {
-			throw new RuntimeException( e );
-		}
+	public static void convert(
+			final Population population,
+			final String csvFile,
+			final FieldExtractor fields ) {
+		final CsvUtils.TitleLine titleLine = new CsvUtils.TitleLine(
+				fields.getFields(
+						population.getPersons().values().stream().
+								findAny().get() ).keySet() );
 
-		if ( !exceptions.isEmpty() ) throw new RuntimeException( "got "+exceptions.size()+" exceptions while running threads" );
+		try ( final CsvWriter writer = new CsvWriter( '\t' , '\"' , titleLine , csvFile ) ) {
+			for ( Person p : population.getPersons().values() ) {
+				final Map<String,String> fs = fields.getFields( p );
+				writer.nextLine();
+				for ( Map.Entry<String,String> e : fs.entrySet() ) {
+					writer.setField( e.getKey() , e.getValue() );
+				}
+			}
+		}
+		catch ( IOException e ) {
+			throw new UncheckedIOException( e );
+		}
 	}
 }

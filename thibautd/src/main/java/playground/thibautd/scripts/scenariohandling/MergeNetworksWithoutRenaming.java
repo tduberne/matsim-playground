@@ -3,7 +3,7 @@
  *                                                                         *
  * *********************************************************************** *
  *                                                                         *
- * copyright       : (C) 2015 by the members listed in the COPYING,        *
+ * copyright       : (C) 2013 by the members listed in the COPYING,        *
  *                   LICENSE and WARRANTY file.                            *
  * email           : info at matsim dot org                                *
  *                                                                         *
@@ -16,40 +16,31 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
+package playground.thibautd.scripts.scenariohandling;
 
-package playground.thibautd.initialdemandgeneration.socnetgensimulated.framework;
+import org.matsim.api.core.v01.Scenario;
+import org.matsim.api.core.v01.network.NetworkWriter;
+import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.network.MatsimNetworkReader;
+import org.matsim.core.scenario.ScenarioUtils;
+import playground.ivt.utils.MoreIOUtils;
 
-import org.apache.log4j.Logger;
+import java.util.Arrays;
 
-import java.util.ArrayList;
-import java.util.List;
+/**
+ * @author thibautd
+ */
+public class MergeNetworksWithoutRenaming {
+	public static void main( String... args ) {
+		final String outNetwork = args[ args.length - 1 ];
+		final String[] inputNetworks = Arrays.copyOf( args , args.length - 1 );
 
-class ThreadGroup {
-	private final static Logger log = Logger.getLogger( ThreadGroup.class );
+		MoreIOUtils.checkFile( outNetwork );
 
-	final List<Thread> threads = new ArrayList< >();
-	final List<Throwable> exceptions = new ArrayList< >();
-	final Thread.UncaughtExceptionHandler exceptionHandler =
-			( t, e ) -> {
-				log.error( "exception in thread "+t.getName() , e );
-				exceptions.add( e );
-			};
-
-	public void add( final Runnable r ) {
-		final Thread t = new Thread( r );
-		t.setUncaughtExceptionHandler( exceptionHandler );
-		threads.add( t );
-	}
-
-	public void run() {
-		for ( Thread t : threads ) t.start();
-		try {
-			for ( Thread t : threads ) t.join();
+		final Scenario sc = ScenarioUtils.createScenario( ConfigUtils.createConfig() );
+		for ( String in : inputNetworks ) {
+			new MatsimNetworkReader( sc.getNetwork() ).readFile( in );
 		}
-		catch ( InterruptedException e ) {
-			throw new RuntimeException( e );
-		}
-
-		if ( !exceptions.isEmpty() ) throw new RuntimeException( "got "+exceptions.size()+" exceptions while running threads" );
+		new NetworkWriter( sc.getNetwork() ).write( outNetwork );
 	}
 }
