@@ -16,13 +16,28 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet;
+package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
 
+import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.population.Person;
+
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author thibautd
  */
-public interface CliquesFiller {
-	Set<Ego> sampleClique( final Ego ego );
+public class Ego {
+	final Person person;
+	final int degree;
+	final Set<Ego> alters = new HashSet<>();
+
+	public Ego( final Person person, final int degree ) {
+		this.person = person;
+		this.degree = degree;
+	}
+
+	public Id<Person> getId() {
+		return person.getId();
+	}
 }

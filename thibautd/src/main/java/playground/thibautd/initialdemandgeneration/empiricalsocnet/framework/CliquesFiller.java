@@ -16,28 +16,21 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet;
+package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
+import playground.thibautd.utils.KDTree;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	final Person person;
-	final int degree;
-	final Set<Ego> alters = new HashSet<>();
-
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
-	}
-
-	public Id<Person> getId() {
-		return person.getId();
-	}
+public interface CliquesFiller {
+	/**
+	 * Sample a feasible clique, fills the alters lists of the egos, and returns the clique.
+	 * @param ego the "center" of the clique
+	 * @param egosWithFreeStubs
+	 * @return The set of egos pertaining to the clique, including the "center", already modified.
+	 */
+	Set<Ego> sampleClique( Ego ego, KDTree<Ego> egosWithFreeStubs );
 }
