@@ -16,44 +16,52 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.initialdemandgeneration.empiricalsocnet.simplesnowball;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.matsim.core.config.ReflectiveConfigGroup;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
+public class SnowballSamplingConfigGroup extends ReflectiveConfigGroup {
+	public static final String GROUP_NAME = "snowballBasedSampling";
 
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
+	private String inputCliquesCsv = null;
+
+	private boolean conditionCliqueSizeOnAge = false;
+	private boolean conditionCliqueSizeOnSex = false;
+
+	public SnowballSamplingConfigGroup( ) {
+		super( GROUP_NAME );
 	}
 
-	public Id<Person> getId() {
-		return getPerson().getId();
+	@StringGetter("inputCliquesCsv")
+	public String getInputCliquesCsv() {
+		return inputCliquesCsv;
 	}
 
-	public Person getPerson() {
-		return person;
+	@StringSetter("inputCliquesCsv")
+	public void setInputCliquesCsv( final String inputCliquesCsv ) {
+		this.inputCliquesCsv = inputCliquesCsv;
 	}
 
-	public int getDegree() {
-		return degree;
+	@StringGetter("conditionCliqueSizeOnAge")
+	public boolean isConditionCliqueSizeOnAge() {
+		return conditionCliqueSizeOnAge;
 	}
 
-	public int getFreeStubs() {
-		return degree - alters.size();
+	@StringSetter("conditionCliqueSizeOnAge")
+	public void setConditionCliqueSizeOnAge( final boolean conditionCliqueSizeOnAge ) {
+		this.conditionCliqueSizeOnAge = conditionCliqueSizeOnAge;
 	}
 
-	public Set<Ego> getAlters() {
-		return alters;
+	@StringGetter("conditionCliqueSizeOnSex")
+	public boolean isConditionCliqueSizeOnSex() {
+		return conditionCliqueSizeOnSex;
+	}
+
+	@StringSetter("conditionCliqueSizeOnSex")
+	public void setConditionCliqueSizeOnSex( final boolean conditionCliqueSizeOnSex ) {
+		this.conditionCliqueSizeOnSex = conditionCliqueSizeOnSex;
 	}
 }

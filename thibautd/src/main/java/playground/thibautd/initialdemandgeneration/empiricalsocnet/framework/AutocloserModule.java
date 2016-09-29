@@ -18,42 +18,41 @@
  * *********************************************************************** */
 package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
+import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * Not that nice, but best way I found to be able to pass csv writers as listenner without maintaining each one separately
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
+public class AutocloserModule extends AbstractModule implements AutoCloseable {
+	private final List<AutoCloseable> closeables = new ArrayList<>();
 
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
+	@Override
+	protected void configure() {
+		bind( Closer.class ).toInstance( new Closer( closeables ) );
 	}
 
-	public Id<Person> getId() {
-		return getPerson().getId();
+	@Override
+	public void close() throws Exception {
+		for ( AutoCloseable c : closeables ) {
+			c.close();
+		}
 	}
 
-	public Person getPerson() {
-		return person;
-	}
+	@Singleton
+	public static class Closer {
+		private final List<AutoCloseable> closeables;
 
-	public int getDegree() {
-		return degree;
-	}
+		public Closer( final List<AutoCloseable> closeables ) {
+			this.closeables = closeables;
+		}
 
-	public int getFreeStubs() {
-		return degree - alters.size();
-	}
-
-	public Set<Ego> getAlters() {
-		return alters;
+		public void add( final AutoCloseable closeable ) {
+			closeables.add( closeable );
+		}
 	}
 }

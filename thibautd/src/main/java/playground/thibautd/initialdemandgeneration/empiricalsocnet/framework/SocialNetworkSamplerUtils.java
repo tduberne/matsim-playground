@@ -18,42 +18,23 @@
  * *********************************************************************** */
 package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
+import com.google.inject.Module;
+import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
+import org.matsim.core.config.Config;
+import org.matsim.core.controler.Injector;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
+public class SocialNetworkSamplerUtils {
+	public static SocialNetwork sampleSocialNetwork( final Config config, final Module... modules ) {
+		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
+		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule();
+		final com.google.inject.Injector injector = Injector.createInjector( config , allModules );
 
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
-	}
-
-	public Id<Person> getId() {
-		return getPerson().getId();
-	}
-
-	public Person getPerson() {
-		return person;
-	}
-
-	public int getDegree() {
-		return degree;
-	}
-
-	public int getFreeStubs() {
-		return degree - alters.size();
-	}
-
-	public Set<Ego> getAlters() {
-		return alters;
+		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
 	}
 }
+

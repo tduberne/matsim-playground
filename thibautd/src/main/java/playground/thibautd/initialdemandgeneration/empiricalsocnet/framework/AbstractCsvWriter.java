@@ -18,42 +18,55 @@
  * *********************************************************************** */
 package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
+import org.apache.log4j.Logger;
+import org.matsim.core.utils.io.IOUtils;
+import org.matsim.core.utils.io.UncheckedIOException;
 
-import java.util.HashSet;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.Set;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
+public abstract class AbstractCsvWriter implements AutoCloseable {
+	private static final Logger log = Logger.getLogger( AbstractCsvWriter.class );
+	private final BufferedWriter writer;
 
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
+	protected abstract String titleLine();
+	protected abstract Iterable<String> cliqueLines( Set<Ego> clique);
+
+	protected AbstractCsvWriter(
+			final String file ,
+			final SocialNetworkSampler sampler,
+			final AutocloserModule.Closer closer ) {
+		log.info( "opening "+file );
+		this.writer = IOUtils.getBufferedWriter( file );
+		try {
+			writer.write( titleLine() );
+		}
+		catch ( IOException e ) {
+			throw new UncheckedIOException( e );
+		}
+		// OK, as it is designed to be used by injection
+		sampler.addCliqueListener( this::write );
+		closer.add( this::close );
 	}
 
-	public Id<Person> getId() {
-		return getPerson().getId();
+	public final void write( final Set<Ego> egos ) {
+		for ( String l : cliqueLines( egos ) ) {
+			try {
+				writer.newLine();
+				writer.write( l );
+			}
+			catch ( IOException e ) {
+				throw new UncheckedIOException( e );
+			}
+		}
 	}
 
-	public Person getPerson() {
-		return person;
-	}
-
-	public int getDegree() {
-		return degree;
-	}
-
-	public int getFreeStubs() {
-		return degree - alters.size();
-	}
-
-	public Set<Ego> getAlters() {
-		return alters;
+	@Override
+	public final void close() throws IOException {
+		writer.close();
 	}
 }
