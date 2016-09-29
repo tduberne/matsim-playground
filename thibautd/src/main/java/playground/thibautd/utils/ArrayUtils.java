@@ -16,44 +16,45 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.utils;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
-
-import java.util.HashSet;
-import java.util.Set;
+import java.util.function.ToDoubleFunction;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
+public class ArrayUtils {
+	/**
+	 * Given a sorted array, returns the index of the first object greater than the given value
+	 * @param array an array sorted according to the result of function
+	 * @param function a function that maps objects to a scalar value
+	 * @param maxValue the maximum value the function should take
+	 * @param minRange do not search below this index
+	 * @param maxRange do not search above this index
+	 * @param <T> the type of objects
+	 * @return the first index of an object greater than the given value
+	 */
+	public static <T> int searchLowest(
+			final T[] array ,
+			final ToDoubleFunction<T> function ,
+			final double maxValue,
+			final int minRange,
+			final int maxRange ) {
+		int min = minRange;
+		int max = maxRange;
 
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
-	}
+		if ( function.applyAsDouble( array[ min ] ) > maxValue ) return min;
 
-	public Id<Person> getId() {
-		return getPerson().getId();
-	}
+		while ( min < max - 1 ) {
+			final int mid = (max + min) / 2;
 
-	public Person getPerson() {
-		return person;
-	}
+			// we want the rightmost element: "push" min even if in the right value,
+			// as long as possible
+			if ( function.applyAsDouble( array[ mid ] ) <= maxValue ) min = mid;
+			else max = mid;
+		}
 
-	public int getDegree() {
-		return degree;
-	}
-
-	public int getFreeStubs() {
-		return degree - alters.size();
-	}
-
-	public Set<Ego> getAlters() {
-		return alters;
+		return max;
 	}
 }
+

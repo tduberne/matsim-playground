@@ -16,44 +16,32 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.initialdemandgeneration.empiricalsocnet.simplesnowball;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
-
-import java.util.HashSet;
-import java.util.Set;
+import com.google.inject.AbstractModule;
+import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.CliquesFiller;
+import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.DegreeDistribution;
+import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.EgoLocator;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
+public class SimpleSnowballModule extends AbstractModule {
+	private final SnowballCliques snowballCliques;
 
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
+	public SimpleSnowballModule( final SnowballCliques snowballCliques ) {
+		this.snowballCliques = snowballCliques;
 	}
 
-	public Id<Person> getId() {
-		return getPerson().getId();
-	}
+	@Override
+	protected void configure() {
+		bind( EgoLocator.class ).to( SnowballLocator.class );
+		bind( SimpleCliquesFiller.Position.class ).to( SnowballLocator.class );
 
-	public Person getPerson() {
-		return person;
-	}
+		bind( DegreeDistribution.class ).to( SimpleDegreeDistribution.class );
 
-	public int getDegree() {
-		return degree;
-	}
+		bind( CliquesFiller.class ).to( SimpleCliquesFiller.class );
 
-	public int getFreeStubs() {
-		return degree - alters.size();
-	}
-
-	public Set<Ego> getAlters() {
-		return alters;
+		bind( SnowballCliques.class ).toInstance( snowballCliques );
 	}
 }

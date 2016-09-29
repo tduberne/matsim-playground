@@ -16,44 +16,43 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.utils;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
+import playground.thibautd.initialdemandgeneration.empiricalsocnet.simplesnowball.SimpleCliquesFiller;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.AbstractList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.stream.Collectors;
+
+import static playground.meisterk.PersonAnalyseTimesByActivityType.Activities.l;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
+public class AggregateList<T> extends AbstractList<T> {
+	private final Collection<List<T>> values;
 
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
+	public AggregateList( final Collection<List<T>> values ) {
+		this.values = values;
 	}
 
-	public Id<Person> getId() {
-		return getPerson().getId();
+	@Override
+	public T get( final int index ) {
+		int currIndex = index;
+		for ( List<T> l : values ) {
+			if ( currIndex < l.size() ) return l.get( currIndex );
+			currIndex -= l.size();
+		}
+		throw new IndexOutOfBoundsException(  );
 	}
 
-	public Person getPerson() {
-		return person;
-	}
-
-	public int getDegree() {
-		return degree;
-	}
-
-	public int getFreeStubs() {
-		return degree - alters.size();
-	}
-
-	public Set<Ego> getAlters() {
-		return alters;
+	@Override
+	public int size() {
+		return values.stream()
+				.mapToInt( List::size )
+				.sum();
 	}
 }

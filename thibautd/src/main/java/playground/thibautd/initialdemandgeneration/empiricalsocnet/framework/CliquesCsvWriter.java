@@ -18,42 +18,38 @@
  * *********************************************************************** */
 package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import org.matsim.core.config.groups.ControlerConfigGroup;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
+@Singleton
+public class CliquesCsvWriter extends AbstractCsvWriter {
+	private int cliqueId = 0;
 
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
+	@Inject
+	public CliquesCsvWriter(
+			final ControlerConfigGroup config,
+			final SocialNetworkSampler sampler,
+			final AutocloserModule.Closer closer ) {
+		super( config.getOutputDirectory() +"/output_cliques.csv" , sampler , closer );
 	}
 
-	public Id<Person> getId() {
-		return getPerson().getId();
+	@Override
+	protected String titleLine() {
+		return "cliqueId\tegoId";
 	}
 
-	public Person getPerson() {
-		return person;
-	}
-
-	public int getDegree() {
-		return degree;
-	}
-
-	public int getFreeStubs() {
-		return degree - alters.size();
-	}
-
-	public Set<Ego> getAlters() {
-		return alters;
+	@Override
+	protected Iterable<String> cliqueLines( final Set<Ego> clique ) {
+		final int currentClique = cliqueId++;
+		return clique.stream()
+				.map( ego -> currentClique +"\t"+ ego.getId() )
+				.collect( Collectors.toList() );
 	}
 }

@@ -18,42 +18,44 @@
  * *********************************************************************** */
 package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import org.matsim.core.config.groups.ControlerConfigGroup;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
-
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
+@Singleton
+public class TiesCsvWriter extends AbstractCsvWriter {
+	@Inject
+	public TiesCsvWriter(
+			final ControlerConfigGroup config,
+			final SocialNetworkSampler sampler,
+			final AutocloserModule.Closer closer ) {
+		super( config.getOutputDirectory() +"/output_ties.csv" , sampler , closer );
 	}
 
-	public Id<Person> getId() {
-		return getPerson().getId();
+	@Override
+	protected String titleLine() {
+		return "egoId\tegoPlannedDegree\talterId\talterPlannedDegree";
 	}
 
-	public Person getPerson() {
-		return person;
-	}
+	@Override
+	protected Iterable<String> cliqueLines( final Set<Ego> clique ) {
+		final List<String> lines = new ArrayList<>();
 
-	public int getDegree() {
-		return degree;
-	}
+		for ( Ego ego : clique ) {
+			for ( Ego alter : clique ) {
+				// only write in one direction?
+				if ( alter == ego ) continue;
+				lines.add( ego.getId() +"\t"+ ego.getDegree() +"\t"+ alter.getId() +"\t"+ alter.getDegree() );
+			}
+		}
 
-	public int getFreeStubs() {
-		return degree - alters.size();
-	}
-
-	public Set<Ego> getAlters() {
-		return alters;
+		return lines;
 	}
 }

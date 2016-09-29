@@ -16,44 +16,32 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.utils;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.api.core.v01.population.Person;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
+public class ArrayUtilsTest {
+	@Test
+	public void testSearchLowest() {
+		final Integer[] arr = {1,2,3,3,3,4,5};
 
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
-	}
+		int lowest = ArrayUtils.searchLowest( arr , i -> i, 3 , 0 , 7 );
 
-	public Id<Person> getId() {
-		return getPerson().getId();
-	}
+		Assert.assertEquals(
+				"unexpected minimum index",
+				5,
+				lowest );
 
-	public Person getPerson() {
-		return person;
-	}
+		lowest = ArrayUtils.searchLowest( arr , i -> i, 3 , 0 , 3 );
 
-	public int getDegree() {
-		return degree;
-	}
-
-	public int getFreeStubs() {
-		return degree - alters.size();
-	}
-
-	public Set<Ego> getAlters() {
-		return alters;
+		Assert.assertEquals(
+				"unexpected minimum index when restricting range",
+				3,
+				lowest );
 	}
 }
+

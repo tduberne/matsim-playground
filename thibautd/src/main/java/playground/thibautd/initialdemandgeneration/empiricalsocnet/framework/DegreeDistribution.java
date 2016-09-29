@@ -18,42 +18,11 @@
  * *********************************************************************** */
 package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
 
-import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.population.Person;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author thibautd
  */
-public class Ego {
-	private final Person person;
-	private final int degree;
-	private final Set<Ego> alters = new HashSet<>();
-
-	public Ego( final Person person, final int degree ) {
-		this.person = person;
-		this.degree = degree;
-	}
-
-	public Id<Person> getId() {
-		return getPerson().getId();
-	}
-
-	public Person getPerson() {
-		return person;
-	}
-
-	public int getDegree() {
-		return degree;
-	}
-
-	public int getFreeStubs() {
-		return degree - alters.size();
-	}
-
-	public Set<Ego> getAlters() {
-		return alters;
-	}
+public interface DegreeDistribution {
+	int sampleDegree( Person person );
 }
