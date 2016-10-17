@@ -16,13 +16,29 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.router.connectionscanalgorithm;
+package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+
+import org.matsim.core.config.ReflectiveConfigGroup;
 
 /**
- * Simple implementation, without the various optimisations presented in "connection scan accelerated"
- *
  * @author thibautd
  */
-public class ConnectionScanAlgorithm {
-}
+public class SocialNetworkSamplingConfigGroup extends ReflectiveConfigGroup {
+	private static final String GROUP_NAME = "socialNetworkSampler";
 
+	private boolean rebalanceKdTree = false;
+
+	public SocialNetworkSamplingConfigGroup( ) {
+		super( GROUP_NAME );
+	}
+
+	@StringGetter("rebalanceKdTree")
+	public boolean doRebalanceKdTree() {
+		return rebalanceKdTree;
+	}
+
+	@StringSetter("rebalanceKdTree")
+	public void setRebalanceKdTree( final boolean rebalanceKdTree ) {
+		this.rebalanceKdTree = rebalanceKdTree;
+	}
+}
