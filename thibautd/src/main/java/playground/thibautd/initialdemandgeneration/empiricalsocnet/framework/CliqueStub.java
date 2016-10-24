@@ -18,11 +18,23 @@
  * *********************************************************************** */
 package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
 
-import playground.thibautd.utils.spatialcollections.SpatialCollectionUtils;
-
 /**
  * @author thibautd
  */
-public interface EgoLocator extends SpatialCollectionUtils.Coordinate<CliqueStub> {
-	int getDimensionality();
+public class CliqueStub {
+	private final int cliqueSize;
+	private final Ego ego;
+
+	public CliqueStub( final int cliqueSize, final Ego ego ) {
+		this.cliqueSize = cliqueSize;
+		this.ego = ego;
+	}
+
+	public Ego getEgo() {
+		return ego;
+	}
+
+	public int getCliqueSize() {
+		return cliqueSize;
+	}
 }

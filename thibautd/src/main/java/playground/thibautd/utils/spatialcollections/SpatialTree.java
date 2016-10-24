@@ -16,13 +16,30 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.utils.spatialcollections;
 
-import playground.thibautd.utils.spatialcollections.SpatialCollectionUtils;
+import java.util.Collection;
+import java.util.function.Predicate;
 
 /**
  * @author thibautd
  */
-public interface EgoLocator extends SpatialCollectionUtils.Coordinate<CliqueStub> {
-	int getDimensionality();
+public interface SpatialTree<C, T> {
+	int size();
+
+	T getAny();
+
+	Collection<T> getAll();
+
+	void add( Collection<T> toAdd );
+
+	boolean remove( T value );
+
+	boolean contains( T value );
+
+	T getClosest( C coord );
+
+	T getClosest(
+			C coord,
+			Predicate<T> predicate );
 }
