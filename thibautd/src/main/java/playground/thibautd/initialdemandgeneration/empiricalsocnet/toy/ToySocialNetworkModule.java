@@ -16,13 +16,24 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.initialdemandgeneration.empiricalsocnet.toy;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.TypeLiteral;
+import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.CliquesFiller;
+import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.EgoCharacteristicsDistribution;
+import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.EgoLocator;
 import playground.thibautd.utils.spatialcollections.SpatialCollectionUtils;
 
 /**
  * @author thibautd
  */
-public interface EgoLocator extends SpatialCollectionUtils.Coordinate<CliqueStub> {
-	int getDimensionality();
+public class ToySocialNetworkModule extends AbstractModule {
+	@Override
+	protected void configure() {
+		bind( CliquesFiller.class ).to( ToyCliquesFiller.class );
+		bind( EgoCharacteristicsDistribution.class ).to( ToyEgoDistribution.class );
+		bind( EgoLocator.class ).to( ToyEgoLocator.class );
+		bind( new TypeLiteral<SpatialCollectionUtils.Metric<double[]>>(){} ).toInstance( SpatialCollectionUtils::squaredEuclidean );
+	}
 }

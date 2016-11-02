@@ -16,13 +16,35 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.utils;
 
-import playground.thibautd.utils.spatialcollections.SpatialCollectionUtils;
+import java.util.Random;
 
 /**
  * @author thibautd
  */
-public interface EgoLocator extends SpatialCollectionUtils.Coordinate<CliqueStub> {
-	int getDimensionality();
+public class RandomUtils {
+	private RandomUtils() {}
+
+	public static double nextLognormal( final Random random , final double location , final double scale ) {
+		return Math.exp( nextNormal( random , location , scale ) );
+	}
+
+	public static double nextNormal( final Random random, final double mean, final double sd ) {
+		return mean + sd * nextStandardNormal( random );
+	}
+
+	public static double nextStandardNormal( final Random random ) {
+		// Approximation based on CLT.
+		// Irwin-Hall distribution. Approximation gets better with increasing N.
+		// TODO Zigurat would be more efficient and exact.
+		return nextIrwinHall( random , 20 ) - 10;
+	}
+
+	public static double nextIrwinHall( final Random random , final int n ) {
+		double sum = 0;
+		for ( int i=0; i < n; i++ ) sum += random.nextDouble();
+		return sum - n;
+	}
 }
+

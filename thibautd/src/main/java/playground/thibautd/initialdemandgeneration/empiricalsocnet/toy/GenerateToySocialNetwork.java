@@ -16,57 +16,53 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.snowball;
+package playground.thibautd.initialdemandgeneration.empiricalsocnet.toy;
 
-import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
-import org.matsim.contrib.socnetsim.framework.population.SocialNetworkWriter;
+import org.matsim.api.core.v01.Scenario;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.ConfigWriter;
 import playground.ivt.utils.MoreIOUtils;
-import playground.polettif.publicTransitMapping.workbench.Run;
 import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.AutocloserModule;
-import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.CliquesCsvWriter;
 import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.SocialNetworkSamplerUtils;
 import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.SocialNetworkSamplingConfigGroup;
-import playground.thibautd.initialdemandgeneration.empiricalsocnet.framework.StopwatchCsvWriter;
 
-import static playground.meisterk.PersonAnalyseTimesByActivityType.Activities.e;
+import java.util.Random;
 
 /**
  * @author thibautd
  */
-public class RunSimpleCliquesSampling {
-	public static void main( String[] args ) {
-		final SnowballSamplingConfigGroup configGroup = new SnowballSamplingConfigGroup();
+public class GenerateToySocialNetwork {
+	public static void main( final String... args ) {
+		final ToySocialNetworkConfigGroup configGroup = new ToySocialNetworkConfigGroup();
 		final Config config = ConfigUtils.loadConfig( args[ 0 ] , configGroup , new SocialNetworkSamplingConfigGroup() );
 
 		MoreIOUtils.initOut( config.controler().getOutputDirectory() , config );
 
 		new ConfigWriter( config ).write( config.controler().getOutputDirectory()+"/output_config.xml" );
 
-		try ( final AutocloserModule closer = new AutocloserModule() ){
-			final SocialNetwork socialNetwork =
-					SocialNetworkSamplerUtils.sampleSocialNetwork(
-							config,
-							closer,
-							binder -> binder.bind( CliquesCsvWriter.class ).asEagerSingleton(),
-							binder -> binder.bind( SnowballTiesCsvWriter.class ).asEagerSingleton(),
-							binder -> binder.bind( EgoCsvWriter.class ).asEagerSingleton(),
-							binder -> binder.bind( StopwatchCsvWriter.class ).asEagerSingleton(),
-							new SimpleSnowballModule( config ) );
+		final ActivityJoiningListenner joiningListenner = new ActivityJoiningListenner( config );
+		final int maxNCliques = configGroup.getNumberOfCliques();
+		for ( int i=1; i <= maxNCliques; i++ ) {
+			try ( final AutocloserModule closer = new AutocloserModule() ) {
+				// XXX dirty! to reimplement nicely
+				configGroup.setNumberOfCliques( i );
+				final Scenario scenario = ToySocialNetworkUtils.generateRandomScenario( new Random( 8 ), config );
 
-			new SocialNetworkWriter( socialNetwork ).write( config.controler().getOutputDirectory() + "/output_socialNetwork.xml.gz" );
+				SocialNetworkSamplerUtils.sampleSocialNetwork(
+						scenario,
+						closer,
+						joiningListenner::bind,
+						new ToySocialNetworkModule() );
+			}
+			catch ( RuntimeException e ) {
+				throw e;
+			}
+			catch ( Exception e ) {
+				throw new RuntimeException( e );
+			}
 		}
-		catch ( RuntimeException e ) {
-			throw e;
-		}
-		catch ( Exception e ) {
-			throw new RuntimeException( e );
-		}
-		finally {
-			MoreIOUtils.closeOutputDirLogging();
-		}
+
+		MoreIOUtils.closeOutputDirLogging();
 	}
 }
-
