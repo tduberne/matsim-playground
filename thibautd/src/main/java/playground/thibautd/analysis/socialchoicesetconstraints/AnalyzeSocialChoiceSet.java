@@ -16,36 +16,30 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.analysis.socialchoicesetconstraints;
 
-import com.google.inject.Module;
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
 import org.matsim.core.config.Config;
-import org.matsim.core.controler.Injector;
-
-import java.util.Arrays;
+import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.scenario.ScenarioUtils;
+import playground.ivt.utils.MonitoringUtils;
+import playground.ivt.utils.MoreIOUtils;
 
 /**
  * @author thibautd
  */
-public class SocialNetworkSamplerUtils {
-	public static SocialNetwork sampleSocialNetwork( final Config config, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule();
-		final com.google.inject.Injector injector = Injector.createInjector( config , allModules );
+public class AnalyzeSocialChoiceSet {
+	public static void main( final String... args ) throws Exception {
+		final Config config = ConfigUtils.loadConfig( args[ 0 ] , new SocialChoiceSetConstraintsConfigGroup() );
 
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
+		try ( AutoCloseable monitor = MonitoringUtils.monitorAndLogOnClose();
+				AutoCloseable logCloseable = MoreIOUtils.initOut( config );
+				AutoCloseable gcTracker = MonitoringUtils.writeGCFigure( config.controler().getOutputDirectory()+"/gc.dat" ) ) {
+			final Scenario scenario = ScenarioUtils.loadScenario( config );
+			final SocialChoiceSetConstraintsAnalyser analyser = new SocialChoiceSetConstraintsAnalyser( scenario );
+
+			analyser.analyzeToFile( config.controler().getOutputDirectory() +"/constrainedChoiceSetSizes.dat" );
+		}
 	}
-
-	public static SocialNetwork sampleSocialNetwork( final Scenario scenario, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule( scenario );
-		final com.google.inject.Injector injector = Injector.createInjector( scenario.getConfig() , allModules );
-
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
-	}
-
-
 }
 
