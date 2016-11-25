@@ -16,36 +16,45 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.negotiation.locationnegotiation;
 
-import com.google.inject.Module;
-import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
-import org.matsim.core.config.Config;
-import org.matsim.core.controler.Injector;
-
-import java.util.Arrays;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import org.matsim.api.core.v01.population.Activity;
+import org.matsim.api.core.v01.population.Person;
+import org.matsim.facilities.ActivityFacilities;
+import org.matsim.facilities.ActivityFacility;
 
 /**
  * @author thibautd
  */
-public class SocialNetworkSamplerUtils {
-	public static SocialNetwork sampleSocialNetwork( final Config config, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule();
-		final com.google.inject.Injector injector = Injector.createInjector( config , allModules );
+@Singleton
+public class LocationHelper {
+	private final ActivityFacilities facilities;
+	private static final String HOME = "home";
 
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
+	@Inject
+	public LocationHelper( final ActivityFacilities facilities ) {
+		this.facilities = facilities;
 	}
 
-	public static SocialNetwork sampleSocialNetwork( final Scenario scenario, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule( scenario );
-		final com.google.inject.Injector injector = Injector.createInjector( scenario.getConfig() , allModules );
+	public ActivityFacility getHomeLocation( final Person person ) {
+		// use custom attributes instead of customizable, to avoid writing this to file.
+		// could be replaced by a map if needed.
+		ActivityFacility facility = (ActivityFacility) person.getCustomAttributes().get( "home location" );
+		if ( facility != null ) return facility;
 
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
+		final Activity homeActivity =
+				person.getSelectedPlan().getPlanElements().stream()
+						.filter( pe -> pe instanceof Activity )
+						.map( pe -> (Activity) pe )
+						// TODO make type configurable
+						.filter( a -> a.getType().equals( HOME ) )
+						.findFirst()
+						.get();
+
+		facility = facilities.getFacilities().get( homeActivity.getFacilityId() );
+		person.getCustomAttributes().put( "home location" , facility );
+		return facility;
 	}
-
-
 }
-

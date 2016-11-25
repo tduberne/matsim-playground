@@ -16,36 +16,45 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.negotiation.locationnegotiation;
 
-import com.google.inject.Module;
-import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
-import org.matsim.core.config.Config;
-import org.matsim.core.controler.Injector;
+import com.google.inject.Singleton;
+import org.matsim.core.gbl.MatsimRandom;
+import org.matsim.utils.objectattributes.attributable.Attributable;
 
-import java.util.Arrays;
+import java.util.Random;
 
 /**
+ * Designed to abstract way to retrieve random seeds.
+ *
  * @author thibautd
  */
-public class SocialNetworkSamplerUtils {
-	public static SocialNetwork sampleSocialNetwork( final Config config, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule();
-		final com.google.inject.Injector injector = Injector.createInjector( config , allModules );
+@Singleton
+public class RandomSeedHelper {
+	private final Random random = MatsimRandom.getLocalInstance();
 
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
+	public long getSeed( final Attributable person ) {
+		Long seed = (Long) person.getAttributes().getAttribute( "seed" );
+		if ( seed != null ) return seed;
+
+		seed = random.nextLong();
+		person.getAttributes().putAttribute( "seed" , seed );
+		return seed;
 	}
 
-	public static SocialNetwork sampleSocialNetwork( final Scenario scenario, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule( scenario );
-		final com.google.inject.Injector injector = Injector.createInjector( scenario.getConfig() , allModules );
+	public long getSeed( final Attributable o1 ,final Attributable o2 ) {
+		final long seed1 = getSeed( o1 );
+		final long seed2 = getSeed( o2 );
 
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
+		return seed1 ^ seed2;
 	}
 
+	public double getUniformErrorTerm( final Attributable o1 ,final Attributable o2 ) {
+		// TODO make sure creating new random each time does not impact perf too much.
+		return new Random( getSeed( o1 , o2 ) ).nextDouble();
+	}
 
+	public double getGaussianErrorTerm( final Attributable o1 ,final Attributable o2 ) {
+		return new Random( getSeed( o1 , o2 ) ).nextGaussian();
+	}
 }
-

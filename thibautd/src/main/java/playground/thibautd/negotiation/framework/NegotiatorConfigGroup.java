@@ -16,36 +16,42 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.negotiation.framework;
 
-import com.google.inject.Module;
-import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
-import org.matsim.core.config.Config;
-import org.matsim.core.controler.Injector;
-
-import java.util.Arrays;
+import org.matsim.core.config.ReflectiveConfigGroup;
 
 /**
  * @author thibautd
  */
-public class SocialNetworkSamplerUtils {
-	public static SocialNetwork sampleSocialNetwork( final Config config, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule();
-		final com.google.inject.Injector injector = Injector.createInjector( config , allModules );
+public class NegotiatorConfigGroup extends ReflectiveConfigGroup {
+	private static final String GROUP_NAME = "negociator";
 
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
+	private int rollingAverageWindow = 100;
+	private double improvingFractionThreshold = 0.01;
+
+	public NegotiatorConfigGroup() {
+		super( GROUP_NAME );
 	}
 
-	public static SocialNetwork sampleSocialNetwork( final Scenario scenario, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule( scenario );
-		final com.google.inject.Injector injector = Injector.createInjector( scenario.getConfig() , allModules );
-
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
+	@StringGetter("rollingAverageWindow")
+	public int getRollingAverageWindow() {
+		return rollingAverageWindow;
 	}
 
+	@StringSetter("rollingAverageWindow")
+	public void setRollingAverageWindow( final int rollingAverageWindow ) {
+		if ( rollingAverageWindow < 1 ) throw new IllegalArgumentException( "rolling average window must be strictly positive, got "+rollingAverageWindow );
+		this.rollingAverageWindow = rollingAverageWindow;
+	}
 
+	@StringGetter("improvingFractionThreshold")
+	public double getImprovingFractionThreshold() {
+		return improvingFractionThreshold;
+	}
+
+	@StringSetter("improvingFractionThreshold")
+	public void setImprovingFractionThreshold( final double improvingFractionThreshold ) {
+		if ( improvingFractionThreshold < 0 || improvingFractionThreshold > 1 ) throw new IllegalArgumentException( "improving fraction threshold must be in [0,1], got "+improvingFractionThreshold );
+		this.improvingFractionThreshold = improvingFractionThreshold;
+	}
 }
-

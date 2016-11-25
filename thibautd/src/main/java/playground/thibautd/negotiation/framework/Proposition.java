@@ -16,36 +16,25 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.negotiation.framework;
 
-import com.google.inject.Module;
-import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
-import org.matsim.core.config.Config;
-import org.matsim.core.controler.Injector;
+import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.population.Person;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * @author thibautd
  */
-public class SocialNetworkSamplerUtils {
-	public static SocialNetwork sampleSocialNetwork( final Config config, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule();
-		final com.google.inject.Injector injector = Injector.createInjector( config , allModules );
+public interface Proposition {
+	Id<Person> getProposerId();
+	Collection<Id<Person>> getProposedIds();
 
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
+	default Collection<Id<Person>> getGroupIds() {
+		final Collection<Id<Person>> ids = new ArrayList<>( getProposedIds().size() + 1 );
+		ids.addAll( getProposedIds() );
+		ids.add( getProposerId() );
+		return ids;
 	}
-
-	public static SocialNetwork sampleSocialNetwork( final Scenario scenario, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule( scenario );
-		final com.google.inject.Injector injector = Injector.createInjector( scenario.getConfig() , allModules );
-
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
-	}
-
-
 }
-

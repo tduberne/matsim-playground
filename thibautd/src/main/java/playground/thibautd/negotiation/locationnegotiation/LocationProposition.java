@@ -16,36 +16,43 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.negotiation.locationnegotiation;
 
-import com.google.inject.Module;
-import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.socnetsim.framework.population.SocialNetwork;
-import org.matsim.core.config.Config;
-import org.matsim.core.controler.Injector;
+import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.population.Person;
+import org.matsim.facilities.ActivityFacility;
+import playground.thibautd.negotiation.framework.Proposition;
 
-import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * @author thibautd
  */
-public class SocialNetworkSamplerUtils {
-	public static SocialNetwork sampleSocialNetwork( final Config config, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule();
-		final com.google.inject.Injector injector = Injector.createInjector( config , allModules );
+public class LocationProposition implements Proposition {
+	private final Id<Person> proposer;
+	private final Collection<Id<Person>> proposed;
 
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
+	private final ActivityFacility facility;
+
+	public LocationProposition( final Id<Person> proposer,
+			final Collection<Id<Person>> proposed,
+			final ActivityFacility facility ) {
+		this.proposer = proposer;
+		this.proposed = proposed;
+		this.facility = facility;
 	}
 
-	public static SocialNetwork sampleSocialNetwork( final Scenario scenario, final Module... modules ) {
-		final Module[] allModules = Arrays.copyOf( modules , modules.length + 1 );
-		allModules[ allModules.length - 1 ] = new SocialNetworkSamplerModule( scenario );
-		final com.google.inject.Injector injector = Injector.createInjector( scenario.getConfig() , allModules );
-
-		return injector.getInstance( SocialNetworkSampler.class ).sampleSocialNetwork();
+	@Override
+	public Id<Person> getProposerId() {
+		return proposer;
 	}
 
+	@Override
+	public Collection<Id<Person>> getProposedIds() {
+		return proposed;
+	}
 
+	public ActivityFacility getFacility() {
+		return facility;
+	}
 }
-
