@@ -16,20 +16,41 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package playground.thibautd.initialdemandgeneration.empiricalsocnet.framework;
+package playground.thibautd.negotiation.offlinecoalition;
 
 import org.matsim.core.config.ReflectiveConfigGroup;
 
 /**
  * @author thibautd
  */
-public class SocialNetworkSamplingConfigGroup extends ReflectiveConfigGroup {
-	private static final String GROUP_NAME = "socialNetworkSampler";
+public class OfflineCoalitionConfigGroup extends ReflectiveConfigGroup {
+	private static final String GROUP_NAME = "offlineCoalition";
 
+	private int iterations = 10;
+	// slow and causes problems when some agents get all their plans removed
+	private int removalPeriod = Integer.MAX_VALUE;
 
-
-	public SocialNetworkSamplingConfigGroup( ) {
+	public OfflineCoalitionConfigGroup() {
 		super( GROUP_NAME );
 	}
 
+	@StringGetter("iterations")
+	public int getIterations() {
+		return iterations;
+	}
+
+	@StringSetter("iterations")
+	public void setIterations( final int iterations ) {
+		this.iterations = iterations;
+	}
+
+	@StringGetter("removalPeriod")
+	public int getRemovalPeriod() {
+		return removalPeriod;
+	}
+
+	@StringSetter("removalPeriod")
+	public void setRemovalPeriod( final int removalPeriod ) {
+		this.removalPeriod = removalPeriod;
+	}
 }
