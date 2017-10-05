@@ -129,9 +129,7 @@
 	<modules>
 		<module>artemc</module>
 		<module>balac</module>
-		<module>balmermi</module>
 		<module>boescpa</module>
-		<module>cottbus</module>
 		<module>gregor</module>
 		<module>gunnar</module>
 		<module>hbecker</module>
@@ -148,7 +146,6 @@
 		<module>sschroeder</module>
 		<module>stockholm</module>
 		<module>thibautd</module>
-		<module>ucsb</module>
 		<module>wrashid</module>
 	</modules>
 
