@@ -127,60 +127,26 @@
 	</build>
 
 	<modules>
-		<module>agarwalamit</module>
-		<module>andreas</module>
 		<module>artemc</module>
 		<module>balac</module>
-		<module>balmermi</module>
-		<module>benjamin</module>
-		<module>bvitins</module>
-		<module>cottbus</module>
-		<module>dgrether</module>
-		<module>dhisingh</module>
-		<module>dhosse</module>
-		<module>droeder</module>
-		<module>duncan</module>
-		<module>dziemke</module>
-		<module>farzadalemi</module>
+		<module>boescpa</module>
 		<module>gregor</module>
 		<module>gunnar</module>
 		<module>hbecker</module>
-		<module>ikaddoura</module>
-		<module>imob</module>
 		<module>ivtExt</module>
-		<module>jbischoff</module>
 		<module>jjoubert</module>
 		<module>johannes</module>
-		<module>juliakern</module>
-		<module>kai</module>
-		<module>kairuns</module>
-		<module>kturner</module>
-		<module>lcrociani</module>
-		<module>lkroeger</module>
-		<module>michalm</module>
 		<module>muelleki</module>
-		<module>naronald</module>
+		<module>paschke</module>
 		<module>pbouman</module>
 		<module>pieter</module>
-		<module>boescpa</module>
-		<module>run</module>
-		<module>sschroeder</module>
-		<module>santiago</module>
 		<module>sergioo</module>
 		<module>singapore</module>
-		<module>smetzler</module>
 		<module>southAfrica</module>
+		<module>sschroeder</module>
 		<module>stockholm</module>
-		<module>telaviv</module>
 		<module>thibautd</module>
-		<module>tthunig</module>
-		<module>toronto</module>
 		<module>wrashid</module>
-		<module>ucsb</module>
-		<module>vsptelematics</module>
-		<module>vsp</module>
-		<module>vspshk</module>
-		<module>vbmh</module>
 	</modules>
 
 	<dependencies>
