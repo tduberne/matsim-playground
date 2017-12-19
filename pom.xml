@@ -127,7 +127,6 @@
 	</build>
 
 	<modules>
-		<module>artemc</module>
 		<module>balac</module>
 		<module>boescpa</module>
 		<module>gregor</module>
