@@ -243,5 +243,11 @@ public class SimplisticRelocatorManagerEngine implements MobsimEngine, ActivityH
 		return false;
 	}
 
+	@Override
+	public void rescheduleActivityEnd(MobsimAgent agent) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
 
