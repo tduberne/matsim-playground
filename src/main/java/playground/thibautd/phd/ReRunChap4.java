@@ -18,13 +18,10 @@
  * *********************************************************************** */
 package playground.thibautd.phd;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.socnetsim.framework.controller.CliquesModule;
 import org.matsim.contrib.socnetsim.framework.controller.JointDecisionProcessModule;
-import org.matsim.contrib.socnetsim.framework.population.JointPlans;
-import org.matsim.contrib.socnetsim.framework.replanning.GroupStrategyManager;
 import org.matsim.contrib.socnetsim.jointactivities.scoring.JointActivitiesScoringModule;
 import org.matsim.contrib.socnetsim.jointtrips.JointTripsModule;
 import org.matsim.contrib.socnetsim.run.RunUtils;
@@ -33,8 +30,6 @@ import org.matsim.contrib.socnetsim.usage.ConfigConfiguredPlanLinkIdentifierModu
 import org.matsim.contrib.socnetsim.usage.JointScenarioUtils;
 import org.matsim.contrib.socnetsim.usage.analysis.SocnetsimDefaultAnalysisModule;
 import org.matsim.contrib.socnetsim.usage.replanning.DefaultGroupStrategyRegistryModule;
-import org.matsim.contrib.socnetsim.usage.replanning.StrongLinkIdentifierProvider;
-import org.matsim.contrib.socnetsim.usage.replanning.WeakLinkIdentifierProvider;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigReader;
 import org.matsim.core.config.ConfigUtils;

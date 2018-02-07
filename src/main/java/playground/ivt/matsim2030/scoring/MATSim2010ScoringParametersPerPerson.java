@@ -2,7 +2,6 @@ package playground.ivt.matsim2030.scoring;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
@@ -21,7 +20,11 @@ import org.matsim.pt.PtConstants;
 import org.matsim.utils.objectattributes.ObjectAttributes;
 import playground.ivt.kticompatibility.KtiLikeScoringConfigGroup;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author thibautd

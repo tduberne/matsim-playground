@@ -19,8 +19,9 @@
  * *********************************************************************** */
 package playground.thibautd.socnetsimusages.cliques.herbie.scoring;
 
-import java.util.TreeSet;
-
+import herbie.running.config.HerbieConfigGroup;
+import herbie.running.pt.DistanceCalculations;
+import herbie.running.scoring.TravelScoringFunction;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Network;
 import org.matsim.api.core.v01.population.Leg;
@@ -31,11 +32,9 @@ import org.matsim.core.config.Config;
 import org.matsim.core.population.PersonUtils;
 import org.matsim.core.scoring.functions.ScoringParameters;
 import org.matsim.deprecated.scoring.functions.CharyparNagelLegScoring;
-
-import herbie.running.config.HerbieConfigGroup;
-import herbie.running.pt.DistanceCalculations;
-import herbie.running.scoring.TravelScoringFunction;
 import playground.thibautd.hitchiking.HitchHikingConstants;
+
+import java.util.TreeSet;
 
 /**
  * @author thibautd

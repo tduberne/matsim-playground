@@ -19,9 +19,7 @@
 package playground.thibautd.socnetsimusages.traveltimeequity;
 
 import com.google.inject.Singleton;
-import gnu.trove.list.TDoubleList;
 import gnu.trove.list.TIntList;
-import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
@@ -38,11 +36,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * @author thibautd

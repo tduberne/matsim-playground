@@ -22,7 +22,12 @@ package playground.meisterk.org.matsim.facilities.algorithms;
 
 import org.apache.log4j.Logger;
 import org.matsim.core.utils.misc.Time;
-import org.matsim.facilities.*;
+import org.matsim.facilities.ActivityFacilitiesImpl;
+import org.matsim.facilities.ActivityFacility;
+import org.matsim.facilities.ActivityOption;
+import org.matsim.facilities.ActivityOptionImpl;
+import org.matsim.facilities.OpeningTime;
+import org.matsim.facilities.OpeningTimeImpl;
 
 import java.util.Iterator;
 import java.util.SortedSet;

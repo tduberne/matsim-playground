@@ -20,22 +20,6 @@
 
 package playground.meisterk.org.matsim.facilities.algorithms;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.Set;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-
-import org.apache.log4j.Logger;
-import org.matsim.api.core.v01.Coord;
-import org.matsim.core.utils.geometry.transformations.CH1903LV03toWGS84;
-import org.matsim.core.utils.misc.Time;
-import org.matsim.facilities.ActivityFacility;
-import org.matsim.facilities.OpeningTime;
-import org.matsim.facilities.algorithms.AbstractFacilityAlgorithm;
-
 import net.opengis.kml.v_2_2_0.BasicLinkType;
 import net.opengis.kml.v_2_2_0.DocumentType;
 import net.opengis.kml.v_2_2_0.FolderType;
@@ -46,6 +30,20 @@ import net.opengis.kml.v_2_2_0.PlacemarkType;
 import net.opengis.kml.v_2_2_0.PointType;
 import net.opengis.kml.v_2_2_0.StyleType;
 import net.opengis.kml.v_2_2_0.TimeSpanType;
+import org.apache.log4j.Logger;
+import org.matsim.api.core.v01.Coord;
+import org.matsim.core.utils.geometry.transformations.CH1903LV03toWGS84;
+import org.matsim.core.utils.misc.Time;
+import org.matsim.facilities.ActivityFacility;
+import org.matsim.facilities.OpeningTime;
+import org.matsim.facilities.algorithms.AbstractFacilityAlgorithm;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.Set;
 
 //import com.google.earth.kml._2.BasicLinkType;
 //import com.google.earth.kml._2.DocumentType;

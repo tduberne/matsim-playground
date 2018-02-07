@@ -48,7 +48,6 @@ import playground.ivt.analysis.scoretracking.ScoreTrackingListener;
 import playground.ivt.matsim2030.scoring.DestinationEspilonScoring;
 import playground.ivt.matsim2030.scoring.MATSim2010ScoringFunctionFactory;
 import playground.thibautd.socnetsimusages.traveltimeequity.EquityConfigGroup;
-import playground.thibautd.socnetsimusages.traveltimeequity.StandardDeviationScorer;
 import playground.thibautd.socnetsimusages.traveltimeequity.TravelTimesRecord;
 
 /**

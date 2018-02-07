@@ -19,7 +19,6 @@
  * *********************************************************************** */
 package playground.thibautd.scripts;
 
-import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.population.Activity;
 import org.matsim.api.core.v01.population.Person;

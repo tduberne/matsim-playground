@@ -35,7 +35,11 @@ import playground.meisterk.org.matsim.enterprisecensus.EnterpriseCensusParser;
 import playground.meisterk.org.matsim.run.facilities.FacilitiesProductionKTI;
 import playground.meisterk.org.matsim.run.facilities.FacilitiesProductionKTI.KTIYear;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class FacilitiesAllActivitiesFTE {
 

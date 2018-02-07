@@ -19,9 +19,6 @@
  * *********************************************************************** */
 package playground.ivt.matsim2030.generation;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
@@ -31,9 +28,9 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.population.algorithms.PersonAlgorithm;
 import org.matsim.core.population.io.PopulationReader;
+import org.matsim.core.population.io.StreamingDeprecated;
 import org.matsim.core.population.io.StreamingPopulationReader;
 import org.matsim.core.population.io.StreamingPopulationWriter;
-import org.matsim.core.population.io.StreamingDeprecated;
 import org.matsim.core.router.StageActivityTypes;
 import org.matsim.core.router.StageActivityTypesImpl;
 import org.matsim.core.router.TripStructureUtils;
@@ -48,6 +45,9 @@ import org.matsim.facilities.ActivityOption;
 import org.matsim.facilities.FacilitiesWriter;
 import org.matsim.facilities.OpeningTimeImpl;
 import org.matsim.pt.PtConstants;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
 
 /**
  * @author thibautd
